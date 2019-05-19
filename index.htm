@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Brick Break Game</title>
+    
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        .MyDiv {
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="MyDiv">
+  <canvas id="MyCanvas" width="480" height="360" style="border:1px solid #000000;"></canvas><br>
+  <span id="MySpan"></span>
+</div>
+
+<script>
+   
+    var canvas = document.getElementById("MyCanvas");
+    var scoreLabel = document.getElementById("MySpan");
+    var ctx = canvas.getContext("2d");
+    var x = canvas.width / 3;
+    var y = canvas.height - 30;
+    var dx = 2;
+    var dy = -2;
+    var ballRadius = 10;
+    var ballColor="#0BCAF3";
+    var paddleHeight = 10;
+    var paddleWidth = 75;
+    var paddleX = (canvas.width - paddleWidth) / 2;
+    var rightPressed = false;
+    var leftPressed = false;
+    var statusRed = 1;
+    var statusBlue = 1;
+    var statusGreen = 1;
+    var statusPurple = 1;
+    var statusYellow = 1;
+    var redCount = 0;
+    var blueCount = 0;
+    var greenCount = 0;
+    var purpleCount = 0;
+    var yellowCount = 0;
+    var score = 0;
+    function drawBricks() {
+        if (statusRed == 1) {
+            ctx.beginPath();
+            ctx.rect(30, 40, 120, 30);
+            ctx.fillStyle = "#FF0000";
+            ctx.fill();
+            ctx.closePath();
+        }
+        if (statusBlue == 1) {
+            ctx.beginPath();
+            ctx.rect(180, 40, 120, 30);
+            ctx.fillStyle = "#0000FF";
+            ctx.fill();
+            ctx.closePath();
+        }
+        if (statusGreen == 1) {
+            ctx.beginPath();
+            ctx.rect(330, 40, 120, 30);
+            ctx.fillStyle = "#00FF00";
+            ctx.fill();
+            ctx.closePath();
+        }
+        if (statusPurple == 1) {
+            ctx.beginPath();
+            ctx.rect(90, 100, 120, 30);
+            ctx.fillStyle = "#800080";
+            ctx.fill();
+            ctx.closePath();
+        }
+        if (statusYellow == 1) {
+            ctx.beginPath();
+            ctx.rect(270, 100, 120, 30);
+            ctx.fillStyle = "#FFFF00";
+            ctx.fill();
+            ctx.closePath();
+        }
+        //Black Obstacle
+        ctx.beginPath();
+        ctx.rect(170, 190, 140, 10);
+        ctx.fillStyle = "#000000";
+        ctx.fill();
+        ctx.closePath();
+    }
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = ballColor;
+        ctx.fill();
+        ctx.closePath();
+    }
+    function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+        ctx.fillStyle = "#0BCAF3";
+        ctx.fill();
+        ctx.closePath();
+    }
+    
+    function draw() {
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBall();
+        drawPaddle();
+        drawBricks();
+        collisionDetection();
+        drawScore();
+    
+        x = x + dx;
+        y = y + dy;
+        
+        if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+            dx = -dx;
+        }
+        if (y + dy < ballRadius) {
+            dy = -dy;
+        } else if (y + dy > canvas.height - ballRadius) {
+            if (x + 10 > paddleX && x - 10 < paddleX + paddleWidth) {
+                dy = -dy;
+            } else {
+                alert("GAME OVER");
+                document.location.reload();
+                clearInterval(interval); 
+            }
+        }
+        
+        if (rightPressed && paddleX < canvas.width - paddleWidth) {
+            paddleX += 7;
+        } else if (leftPressed && paddleX > 0) {
+            paddleX -= 7;
+        }
+        if (score == 250) {
+            clearInterval(interval); 
+            setTimeout(alertGiver,100)
+        }
+            function alertGiver() {
+                alert("CONGRATULATIONS!");
+                clearInterval(interval); 
+            }
+        }
+        
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+        document.addEventListener("mousemove", mouseMoveHandler, false);
+       
+        function keyDownHandler(c) {
+            if (c.key == "Right" || c.key == "ArrowRight") {
+                rightPressed = true;
+            } else if (c.key == "Left" || c.key == "ArrowLeft") {
+                leftPressed = true;
+            }
+        }
+        function keyUpHandler(c) {
+            if (c.key == "Right" || c.key == "ArrowRight") {
+                rightPressed = false;
+            } else if (c.key == "Left" || c.key == "ArrowLeft") {
+                leftPressed = false;
+            }
+        }
+        function mouseMoveHandler(c) {
+            var relativeX = c.clientX - canvas.offsetLeft;
+                if(relativeX > 0 && relativeX < canvas.width) {
+                    paddleX = relativeX - paddleWidth/2;
+  }
+}
+        function collisionDetection() {
+            //for blue
+           if (x > 180 && x < 300 && y > 40 && y < 70 && blueCount == 0) {
+                dy = -dy;
+                statusBlue = 0;
+                blueCount++;
+                score += 40;
+                ballColor="#0000FF";
+            }
+            //for green
+            if (x > 330 && x < 450 && y > 40 && y < 70 && greenCount == 0) {
+                dy = -dy;
+                statusGreen = 0;
+                greenCount++;
+                score += 80;
+                ballColor="#00FF00";
+            }
+            //for red
+             
+            if (x > 30 && x < 150 && y > 40 && y < 70 && redCount == 0) {
+                dy = -dy;
+                statusRed = 0;
+                redCount++;
+                score += 20;
+                ballColor="#FF0000";
+            }
+            //for yellow
+           if (x > 270 && x < 390 && y > 100 && y < 130 && yellowCount == 0) {
+                dy = -dy;
+                statusYellow = 0;
+                yellowCount++;
+                score += 50;
+                ballColor="#FFFF00";
+            }
+            //for purple
+             if (x > 90 && x < 210 && y > 100 && y < 130 && purpleCount == 0) {
+                dy = -dy;
+                statusPurple = 0;
+                purpleCount++;
+                score += 60;
+                ballColor="#800080";
+            }
+            //for black obstacle
+            if (x > 170 && x < 310 && y > 190 && y < 200) {
+                dy = -dy;
+            }
+        }
+        function drawScore() {
+            
+            ctx.font = "14px Arial";
+            ctx.fillStyle = "#000000";
+            ctx.fillText("Score: " + score, 212, 190);
+            
+            scoreLabel.innerHTML = "Score: " + score;
+        }
+        var interval = setInterval(draw, 10);
+</script>
+
+
+</body>
+</html>
